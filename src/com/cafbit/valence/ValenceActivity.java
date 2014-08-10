@@ -317,6 +317,7 @@ public class ValenceActivity extends Activity implements OnTouchPadEventListener
 
         switch (major) {
         case 1:
+        	//AB Modifiers
             // mod menu
             if ((minor >= 0) && (minor < RFBKeyEvent.MODIFIERS.length)) {
                 modifier = RFBKeyEvent.MODIFIERS[minor];
@@ -433,7 +434,16 @@ public class ValenceActivity extends Activity implements OnTouchPadEventListener
         if ((keyCode == KeyEvent.KEYCODE_MENU) || (keyCode == KeyEvent.KEYCODE_BACK)) {
             return super.onKeyDown(keyCode, keyEvent);
         }
-        sendKey(new RFBKeyEvent(keyEvent, modifier));
+        if (keyEvent.isCtrlPressed()) {
+        	// Allow pressing Ctrl instead of Cmd as the Twiddler doesn't have Cmd key
+            modifier = RFBKeyEvent.MODIFIERS[3];
+            modButton.setTextOn(modifier.shortName);
+            modButton.setChecked(true);
+            
+            sendKey(new RFBKeyEvent(keyEvent, modifier));
+        } else {
+        	sendKey(new RFBKeyEvent(keyEvent, modifier));
+        }
         return true;
     }
 
@@ -454,12 +464,13 @@ public class ValenceActivity extends Activity implements OnTouchPadEventListener
         }
     }
 
-    /*
+    
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent keyEvent) {
         System.out.println("********** onKeyUp() keyCode="+keyCode+" keyEvent="+keyEvent+" isCanceled="+keyEvent.isCanceled()+" isTracking="+keyEvent.isTracking());
         return super.onKeyUp(keyCode, keyEvent);
     }
+    /*
     @Override
     public boolean onKeyLongPress(int keyCode, KeyEvent keyEvent) {
         System.out.println("********** onKeyLongPress() keyCode="+keyCode+" keyEvent="+keyEvent);
@@ -480,7 +491,7 @@ public class ValenceActivity extends Activity implements OnTouchPadEventListener
 
     private void sendKey(RFBKeyEvent rfbKeyEvent) {
         if (isConnected()) {
-            rfbThread.getHandler().onRFBEvent(rfbKeyEvent);
+            rfbThread.getHandler().onRFBEvent(rfbKeyEvent);       	
             if (modifier != null) {
                 modifier = null;
                 modButton.setChecked(false);
